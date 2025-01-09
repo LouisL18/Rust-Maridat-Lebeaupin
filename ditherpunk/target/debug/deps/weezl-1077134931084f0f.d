@@ -1,0 +1,10 @@
+/home/iut45/Etudiants/o22108337/Rust/Rust-Maridat-Lebeaupin/ditherpunk/target/debug/deps/libweezl-1077134931084f0f.rmeta: /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/lib.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/encode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/error.rs
+
+/home/iut45/Etudiants/o22108337/Rust/Rust-Maridat-Lebeaupin/ditherpunk/target/debug/deps/libweezl-1077134931084f0f.rlib: /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/lib.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/encode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/error.rs
+
+/home/iut45/Etudiants/o22108337/Rust/Rust-Maridat-Lebeaupin/ditherpunk/target/debug/deps/weezl-1077134931084f0f.d: /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/lib.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/encode.rs /home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/error.rs
+
+/home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/lib.rs:
+/home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs:
+/home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/encode.rs:
+/home/iut45/Etudiants/o22108337/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/error.rs:

@@ -1,4 +1,8 @@
 use argh::FromArgs;
+use image::io::Reader as ImageReader;
+use image::ImageError;
+use image::{Rgb, RgbImage, Luma, Pixel};
+
 
 #[derive(Debug, Clone, PartialEq, FromArgs)]
 /// Convertit une image en monochrome ou vers une palette rÃ©duite de couleurs.
@@ -50,8 +54,25 @@ const YELLOW: image::Rgb<u8> = image::Rgb([255, 255, 0]);
 const MAGENTA: image::Rgb<u8> = image::Rgb([255, 0, 255]);
 const CYAN: image::Rgb<u8> = image::Rgb([0, 255, 255]);
 
-fn main() -> Result<(), ImageError>{
+fn main() -> Result<(), ImageError> {
     let args: DitherArgs = argh::from_env();
     let path_in = args.input;
+
+    let img_file = ImageReader::open(&path_in)?;
+    let mut img: image::RgbImage = img_file.decode()?.to_rgb8();
+    println!("J'ai chargé une image de largeur {}", img.width());
+    println!("Le pixel en 5, 12 a pour couleur {:?}", img.get_pixel(5, 12));
+    for (x, y, color) in img.enumerate_pixels_mut() {
+        if (x + y) % 2 == 0 {
+            *color = Rgb([255, 255, 255])
+        }
+    }
+
+    if let Some(output) = args.output {
+        img.save(output)?;
+    } else {
+        img.save("output.jpg")?;
+    }
+
     Ok(())
 }
