@@ -55,6 +55,7 @@ const MAGENTA: image::Rgb<u8> = image::Rgb([255, 0, 255]);
 const CYAN: image::Rgb<u8> = image::Rgb([0, 255, 255]);
 
 fn main() -> Result<(), ImageError> {
+    
     let args: DitherArgs = argh::from_env();
     let path_in = args.input;
 
@@ -69,9 +70,12 @@ fn main() -> Result<(), ImageError> {
     }
 
     if let Some(output) = args.output {
+        println!("J'écris l'image dans le fichier {}", output);
         img.save(output)?;
     } else {
+        println!("J'affiche l'image");
         img.save("output.jpg")?;
+
     }
 
     Ok(())
