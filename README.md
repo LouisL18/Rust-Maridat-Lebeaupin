@@ -29,3 +29,10 @@ image = "0.24"
 Pour ouvrir une image depuis un fichier, on utilise la fonction `open`. Pour obtenir une image en mode `RGB8`, on peut utiliser la méthode `to_rgb8` de l'objet `DynamicImage`.
 
 	
+### Question 3
+
+Si l'image de départ avait un canal alpha, il sera perdu lors de la sauvegarde.
+
+### Question 4
+
+
