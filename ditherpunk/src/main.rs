@@ -62,19 +62,19 @@ fn main() -> Result<(), ImageError> {
     let img_file = ImageReader::open(&path_in)?;
     let mut img: image::RgbImage = img_file.decode()?.to_rgb8();
     println!("J'ai chargé une image de largeur {}", img.width());
-    println!("Le pixel en 5, 12 a pour couleur {:?}", img.get_pixel(5, 12));
-    // for (x, y, color) in img.enumerate_pixels_mut() {
-    //     if (x + y) % 2 == 0 {
-    //         *color = Rgb([255, 255, 255])
-    //     }
-    // }
+    println!("Le pixel en 32, 52 a pour couleur {:?}", img.get_pixel(32, 52));
+    for (x, y, color) in img.enumerate_pixels_mut() {
+        if (x + y) % 2 == 0 {
+            *color = Rgb([255, 255, 255])
+        }
+    }
 
     if let Some(output) = args.output {
         println!("J'écris l'image dans le fichier {}", output);
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice1.3.png")?;
+        img.save("output/exercice1.5.png")?;
 
     }
 
