@@ -61,3 +61,15 @@ L'image reste tout de même reconnaissable, on dirait qu'un filtre blanc est app
 ## Partie 2 - Passage en monochrome par seuillage
 
 ### Question 6
+
+Commande pour récuperer la luminosité d'un pixel :
+```rs
+to_luma
+```
+
+Source :
+
+```
+https://docs.rs/image/latest/image/trait.Pixel.html
+```
+
