@@ -136,3 +136,4 @@ let couleur_2 = Rgb([
 ```
 
 
+## Partie 3 - Passage à une palette
