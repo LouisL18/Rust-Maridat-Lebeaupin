@@ -31,7 +31,15 @@ enum Mode {
 #[derive(Debug, Clone, PartialEq, FromArgs)]
 #[argh(subcommand, name="seuil")]
 /// Rendu de lâimage par seuillage monochrome.
-struct OptsSeuil {}
+struct OptsSeuil {
+    /// couleur claire en format hexadécimal (par défaut : blanc #FFFFFF)
+    #[argh(option, default = "String::from(\"FFFFFF\")")]
+    couleur_1: String,
+
+    /// couleur foncée en format hexadécimal (par défaut : noir #000000)
+    #[argh(option, default = "String::from(\"000000\")")]
+    couleur_2: String,
+}
 
 
 #[derive(Debug, Clone, PartialEq, FromArgs)]
@@ -59,13 +67,51 @@ fn main() -> Result<(), ImageError> {
     let args: DitherArgs = argh::from_env();
     let path_in = args.input;
 
+
+    // Partie 1
+
+    // let img_file = ImageReader::open(&path_in)?;
+    // let mut img: image::RgbImage = img_file.decode()?.to_rgb8();
+    // println!("J'ai chargé une image de largeur {}", img.width());
+    // println!("Le pixel en 32, 52 a pour couleur {:?}", img.get_pixel(32, 52));
+    // for (x, y, color) in img.enumerate_pixels_mut() {
+    //     if (x + y) % 2 == 0 {
+    //         *color = Rgb([255, 255, 255])
+    //     }
+    // }
+
+
+    // Partie 2 passage en monochrome
+
     let img_file = ImageReader::open(&path_in)?;
     let mut img: image::RgbImage = img_file.decode()?.to_rgb8();
     println!("J'ai chargé une image de largeur {}", img.width());
-    println!("Le pixel en 32, 52 a pour couleur {:?}", img.get_pixel(32, 52));
-    for (x, y, color) in img.enumerate_pixels_mut() {
-        if (x + y) % 2 == 0 {
-            *color = Rgb([255, 255, 255])
+
+    match args.mode {
+        Mode::Seuil(opts) => {
+            // Passage en monochrome
+            let couleur_1 = Rgb([
+                u8::from_str_radix(&opts.couleur_1[0..2], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_1[2..4], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_1[4..6], 16).unwrap(),
+            ]);
+            let couleur_2 = Rgb([
+                u8::from_str_radix(&opts.couleur_2[0..2], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_2[2..4], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
+            ]);
+            for (x, y, pixel) in img.enumerate_pixels_mut() {
+                let luminosity = pixel.to_luma()[0]; // Calculer la luminosité
+                if luminosity > 127 {
+                    *pixel = couleur_1; // Plus de 50 % de luminosité -> couleur claire
+                } else {
+                    *pixel = couleur_2; // Moins de 50 % de luminosité -> couleur foncée
+                }
+            }
+        }
+        Mode::Palette(opts) => {
+            // Ici, ajouter le traitement pour la palette (si nécessaire)
+            unimplemented!();
         }
     }
 
@@ -74,7 +120,7 @@ fn main() -> Result<(), ImageError> {
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice1.5.png")?;
+        img.save("output/exercice2.8.png")?;
 
     }
 

@@ -57,3 +57,82 @@ for (x, y, color) in img.enumerate_pixels_mut() {
 ```
 
 L'image reste tout de même reconnaissable, on dirait qu'un filtre blanc est appliqué.
+
+## Partie 2 - Passage en monochrome par seuillage
+
+### Question 6
+
+La commande pour récupérer la luminosité d'un pixel utilise la méthode to_luma fournie par le trait Pixel de la bibliothèque image :
+```rs
+let luminosity = pixel.to_luma()[0];
+```
+
+Source :
+
+```
+https://docs.rs/image/latest/image/trait.Pixel.html
+```
+
+### Question 7
+
+Pour convertir l’image en monochrome, nous avons :
+
+- Parcouru chaque pixel de l’image.
+
+- Calculé la luminosité du pixel avec to_luma.
+
+- Comparé la luminosité à un seuil de 50 % (127 sur une échelle de 0 à 255) :
+
+  - Si la luminosité est supérieure à 127, le pixel est remplacé par la couleur claire.
+
+  - Sinon, il est remplacé par la couleur foncée.
+
+Exemple de code :
+```rs
+for (x, y, pixel) in img.enumerate_pixels_mut() {
+    let luminosity = pixel.to_luma()[0];
+    if luminosity > 127 {
+        *pixel = couleur_1;
+    } else {
+        *pixel = couleur_2;
+    }
+}
+```
+
+
+
+### Question 8
+
+Pour permettre à l’utilisateur de choisir deux couleurs, nous avons modifié la structure OptsSeuil :
+```rs
+struct OptsSeuil {
+    /// couleur claire en format hexadécimal (par défaut : blanc #FFFFFF)
+    #[argh(option, default = "String::from(\"FFFFFF\")")]
+    couleur_1: String,
+
+    /// couleur foncée en format hexadécimal (par défaut : noir #000000)
+    #[argh(option, default = "String::from(\"000000\")")]
+    couleur_2: String,
+}
+```
+
+Ce code permet de :
+
+- Spécifier les couleurs claires et foncées en ligne de commande sous forme hexadécimale.
+
+- Convertir ces valeurs en Rgb<u8> dans la logique du programme :
+
+```rs
+let couleur_1 = Rgb([
+                u8::from_str_radix(&opts.couleur_1[0..2], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_1[2..4], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_1[4..6], 16).unwrap(),
+            ]);
+let couleur_2 = Rgb([
+                u8::from_str_radix(&opts.couleur_2[0..2], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_2[2..4], 16).unwrap(),
+                u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
+            ]);
+```
+
+
