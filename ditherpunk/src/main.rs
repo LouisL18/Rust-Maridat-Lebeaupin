@@ -84,6 +84,45 @@ fn tramage_aleatoire(img: &mut RgbImage) {
     }
 }
 
+fn generate_bayer_matrix(order: u32) -> Vec<Vec<u8>> {
+    if order == 0 {
+        return vec![vec![0]];
+    }
+
+    let previous_matrix = generate_bayer_matrix(order - 1);
+    let size = previous_matrix.len();
+    let mut matrix = vec![vec![0; size * 2]; size * 2];
+
+    for i in 0..size {
+        for j in 0..size {
+            let base_value = previous_matrix[i][j] * 4;
+            matrix[i][j] = base_value; // Haut-gauche
+            matrix[i][j + size] = base_value + 2; // Haut-droit
+            matrix[i + size][j] = base_value + 3; // Bas-gauche
+            matrix[i + size][j + size] = base_value + 1; // Bas-droit
+        }
+    }
+
+    matrix
+}
+
+
+fn tramage_bayer(img: &mut RgbImage, order: u32) {
+    let bayer_matrix = generate_bayer_matrix(order);
+    let matrix_size = bayer_matrix.len() as u32;
+
+    for (x, y, pixel) in img.enumerate_pixels_mut() {
+        let luminosity = pixel.to_luma()[0] as f64 / 255.0; // Luminosité normalisée (0.0 - 1.0)
+        let threshold = bayer_matrix[(y % matrix_size) as usize][(x % matrix_size) as usize] as f64
+            / (matrix_size * matrix_size) as f64; // Seuil basé sur la matrice de Bayer
+        if luminosity > threshold {
+            *pixel = WHITE;
+        } else {
+            *pixel = BLACK;
+        }
+    }
+}
+
 
 fn main() -> Result<(), ImageError> {
     
@@ -136,7 +175,11 @@ fn main() -> Result<(), ImageError> {
 
             // Partie 4
 
-            tramage_aleatoire(&mut img);
+            // tramage_aleatoire(&mut img);
+
+            // PArtie 5
+
+            tramage_bayer(&mut img, 2);
 
         }
         Mode::Palette(opts) => {
@@ -176,7 +219,7 @@ fn main() -> Result<(), ImageError> {
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice4.12.png")?;
+        img.save("output/exercice5.15.png")?;
 
     }
 
