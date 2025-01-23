@@ -211,3 +211,47 @@ Message d’avertissement affiché :
 ```txt
 Avertissement : la palette est vide. L'image sera renvoyée sans modification.
 ```
+
+## Partie 4 - Tramage aléatoire (dithering)
+
+### Question 12
+
+Pour implémenter le tramage aléatoire, j'ai commencé par ajouter la dépendance `rand` : 
+
+```
+cargo add rand
+```
+
+puis j'ai ensuite réaliser l'implémentation de tramage aléatoire :
+
+```rust
+
+fn tramage_aleatoire(img: &mut RgbImage) {
+    let mut rng = rand::thread_rng();  // Générateur de nombres aléatoires
+    for (x, y, pixel) in img.enumerate_pixels_mut() {
+        let luminosity = pixel.to_luma()[0]; // Calculer la luminosité du pixel
+        let seuil: f64 = rng.gen(); // Générer un seuil entre 0 et 1
+        if luminosity as f64 / 255.0 > seuil {  // Comparer la luminosité avec le seuil
+            *pixel = WHITE;  // Si la luminosité est supérieure au seuil, rendre le pixel blanc
+        } else {
+            *pixel = BLACK;  // Sinon, rendre le pixel noir
+        }
+    }
+}
+```
+
+Dans le main, on appelle cette fonction comme suit :
+```rust
+match args.mode {
+        Mode::Seuil(opts) => {
+
+            // Partie 4
+
+            tramage_aleatoire(&mut img);
+
+        }
+        Mode::Palette(opts) => {
+            
+        }
+    }
+```

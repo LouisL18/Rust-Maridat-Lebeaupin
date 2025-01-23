@@ -2,6 +2,7 @@ use argh::FromArgs;
 use image::io::Reader as ImageReader;
 use image::ImageError;
 use image::{Rgb, RgbImage, Luma, Pixel};
+use rand::Rng;
 
 
 #[derive(Debug, Clone, PartialEq, FromArgs)]
@@ -70,6 +71,18 @@ fn distance_couleur(c1: Rgb<u8>, c2: Rgb<u8>) -> f64 {
     ((r_diff * r_diff + g_diff * g_diff + b_diff * b_diff) as f64).sqrt()
 }
 
+fn tramage_aleatoire(img: &mut RgbImage) {
+    let mut rng = rand::thread_rng();  // Générateur de nombres aléatoires
+    for (x, y, pixel) in img.enumerate_pixels_mut() {
+        let luminosity = pixel.to_luma()[0]; // Calculer la luminosité du pixel
+        let seuil: f64 = rng.gen(); // Générer un seuil entre 0 et 1
+        if luminosity as f64 / 255.0 > seuil {  // Comparer la luminosité avec le seuil
+            *pixel = WHITE;  // Si la luminosité est supérieure au seuil, rendre le pixel blanc
+        } else {
+            *pixel = BLACK;  // Sinon, rendre le pixel noir
+        }
+    }
+}
 
 
 fn main() -> Result<(), ImageError> {
@@ -91,7 +104,6 @@ fn main() -> Result<(), ImageError> {
     // }
 
 
-    // Partie 2 passage en monochrome
 
     let img_file = ImageReader::open(&path_in)?;
     let mut img: image::RgbImage = img_file.decode()?.to_rgb8();
@@ -121,6 +133,11 @@ fn main() -> Result<(), ImageError> {
             //         *pixel = couleur_2; // Moins de 50 % de luminosité -> couleur foncée
             //     }
             // }
+
+            // Partie 4
+
+            tramage_aleatoire(&mut img);
+
         }
         Mode::Palette(opts) => {
             // Palette de couleurs disponibles
@@ -159,7 +176,7 @@ fn main() -> Result<(), ImageError> {
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice3.10.png")?;
+        img.save("output/exercice4.12.png")?;
 
     }
 
