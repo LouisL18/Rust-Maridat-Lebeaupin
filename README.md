@@ -33,6 +33,8 @@ Pour ouvrir une image depuis un fichier, on utilise la fonction `open`. Pour obt
 
 Si l'image de départ avait un canal alpha, celui-ci sera perdu lors de la sauvegarde.
 
+![question3](ditherpunk/output/exercice1.3.png)
+
 ### Question 4
 
 Pour savoir trouver la couleur d'un pixel, voici la commande utilisé :
@@ -55,6 +57,8 @@ for (x, y, color) in img.enumerate_pixels_mut() {
         }
     }
 ```
+![question5](ditherpunk/output/exercice1.5.png)
+
 
 L'image reste tout de même reconnaissable, on dirait qu'un filtre blanc est appliqué.
 
@@ -98,7 +102,7 @@ for (x, y, pixel) in img.enumerate_pixels_mut() {
     }
 }
 ```
-
+![question7](ditherpunk/output/exercice2.7.png)
 
 
 ### Question 8
@@ -134,6 +138,8 @@ let couleur_2 = Rgb([
                 u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
             ]);
 ```
+
+![question8](ditherpunk/output/exercice2.8.png)
 
 
 ## Partie 3 - Passage à une palette
@@ -197,6 +203,7 @@ Mode::Palette(opts) => {
 }
 ```
 
+![question10](ditherpunk/output/exercice3.10.png)
 
 
 ### Question 11
@@ -255,3 +262,94 @@ match args.mode {
         }
     }
 ```
+
+![question12](ditherpunk/output/exercice4.12.png)
+
+
+## Partie 5 - Utilisation de la matrice de Bayer comme trame
+
+### Question 13
+Formule : 
+```
+Bn = 1/4*(4*Bn       4*Bn+2*Un  
+    	4*Bn+3*Un    4*Bn+Un)
+```
+
+
+𝑈𝑛 est une matrice de taille 2^𝑛 × 2^𝑛 dont tous les coefficients valent 1.
+```
+
+B0 = [0]  
+B1 = 1/4[0 2
+         3 1]
+
+B2 = 1/16[0 8 2 10  
+         12 4 14 6  
+         3 11 1 9
+         15 7 13 5]
+
+B3 = 1/64[?]
+
+```
+Nous utilisons B2​ pour calculer les blocs.
+
+```
+4*B2=   [0 32 8 40 
+        48 16 56 24 
+        12 44 4 36 
+        60 28 52 20]
+
+4*B2+2*U2​ : Ajoutons 2 à chaque élément de 4*B2​.
+
+4*B2+2*U2= [2 34 10 42 
+            50 18 58 26 
+            14 46 6 38 
+            62 30 54 22]
+
+4*B2+3*U2 : Ajoutons 3 à chaque élément de 4B2​.
+
+4*B2+3*U2= [3 35 11 43 
+            51 19 59 27 
+            15 47 7 39 
+            63 31 55 23]
+
+4*B2+U2​ : Ajoutons 1 à chaque élément de 4B2​.
+
+4*B2+U2=   [1 33 9 41 
+            49 17 57 25 
+            13 45 5 37 
+            61 29 53 21]
+
+```
+
+On assemble les blocs afin de former la matrice B3:
+
+```
+B3 = 1/64*( 4*B2         4*B2+2*U2  
+    	    4*B2+3*U2    4*B2+U2)
+
+
+B3 =  1/64[  0 32 8 40 2 34 10 42
+            48 16 56 24 50 18 58 26
+            12 44 4 36 14 46 6 38
+            60 28 52 20 62 30 54 22
+            3 35 11 43 1 33 9 41
+            51 19 59 27 49 17 57 25
+            15 47 7 39 13 45 5 37
+            63 31 55 23 61 29 53 21]
+
+```
+
+
+### Question 14
+
+Pour implémenter ces données en rust nous allons utiliser des vecteurs de vecteurs
+
+
+### Question 15
+
+Nous avon créer 2 fonctions une pour générer la matrice de Bayer et une autre pour appliquer le tramage à l'image
+
+![question15](ditherpunk/output/exercice5.15.png)
+
+
