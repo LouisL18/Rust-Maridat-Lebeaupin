@@ -62,6 +62,16 @@ const YELLOW: image::Rgb<u8> = image::Rgb([255, 255, 0]);
 const MAGENTA: image::Rgb<u8> = image::Rgb([255, 0, 255]);
 const CYAN: image::Rgb<u8> = image::Rgb([0, 255, 255]);
 
+
+fn distance_couleur(c1: Rgb<u8>, c2: Rgb<u8>) -> f64 {
+    let r_diff = c1[0] as i32 - c2[0] as i32;
+    let g_diff = c1[1] as i32 - c2[1] as i32;
+    let b_diff = c1[2] as i32 - c2[2] as i32;
+    ((r_diff * r_diff + g_diff * g_diff + b_diff * b_diff) as f64).sqrt()
+}
+
+
+
 fn main() -> Result<(), ImageError> {
     
     let args: DitherArgs = argh::from_env();
@@ -89,29 +99,58 @@ fn main() -> Result<(), ImageError> {
 
     match args.mode {
         Mode::Seuil(opts) => {
-            // Passage en monochrome
-            let couleur_1 = Rgb([
-                u8::from_str_radix(&opts.couleur_1[0..2], 16).unwrap(),
-                u8::from_str_radix(&opts.couleur_1[2..4], 16).unwrap(),
-                u8::from_str_radix(&opts.couleur_1[4..6], 16).unwrap(),
-            ]);
-            let couleur_2 = Rgb([
-                u8::from_str_radix(&opts.couleur_2[0..2], 16).unwrap(),
-                u8::from_str_radix(&opts.couleur_2[2..4], 16).unwrap(),
-                u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
-            ]);
-            for (x, y, pixel) in img.enumerate_pixels_mut() {
-                let luminosity = pixel.to_luma()[0]; // Calculer la luminosité
-                if luminosity > 127 {
-                    *pixel = couleur_1; // Plus de 50 % de luminosité -> couleur claire
-                } else {
-                    *pixel = couleur_2; // Moins de 50 % de luminosité -> couleur foncée
-                }
-            }
+
+            // Partie 2
+
+            // // Passage en monochrome
+            // let couleur_1 = Rgb([
+            //     u8::from_str_radix(&opts.couleur_1[0..2], 16).unwrap(),
+            //     u8::from_str_radix(&opts.couleur_1[2..4], 16).unwrap(),
+            //     u8::from_str_radix(&opts.couleur_1[4..6], 16).unwrap(),
+            // ]);
+            // let couleur_2 = Rgb([
+            //     u8::from_str_radix(&opts.couleur_2[0..2], 16).unwrap(),
+            //     u8::from_str_radix(&opts.couleur_2[2..4], 16).unwrap(),
+            //     u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
+            // ]);
+            // for (x, y, pixel) in img.enumerate_pixels_mut() {
+            //     let luminosity = pixel.to_luma()[0]; // Calculer la luminosité
+            //     if luminosity > 127 {
+            //         *pixel = couleur_1; // Plus de 50 % de luminosité -> couleur claire
+            //     } else {
+            //         *pixel = couleur_2; // Moins de 50 % de luminosité -> couleur foncée
+            //     }
+            // }
         }
         Mode::Palette(opts) => {
-            // Ici, ajouter le traitement pour la palette (si nécessaire)
-            unimplemented!();
+            // Palette de couleurs disponibles
+            let palette = vec![
+                BLACK, WHITE, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN,
+            ];
+
+            // Limiter la palette à n_couleurs
+            if opts.n_couleurs == 0 {
+                eprintln!("Avertissement : la palette est vide. L'image sera renvoyée sans modification.");
+                // Aucun traitement nécessaire, l'image reste inchangée
+            } else {
+                let palette = &palette[..opts.n_couleurs.min(palette.len())];
+
+                // Remplacer chaque pixel par la couleur la plus proche de la palette
+                for (x, y, pixel) in img.enumerate_pixels_mut() {
+                    let mut min_distance = f64::MAX;
+                    let mut nearest_color = BLACK;
+
+                    for &color in palette {
+                        let distance = distance_couleur(*pixel, color);
+                        if distance < min_distance {
+                            min_distance = distance;
+                            nearest_color = color;
+                        }
+                    }
+
+                    *pixel = nearest_color;
+                }
+            }
         }
     }
 
@@ -120,7 +159,7 @@ fn main() -> Result<(), ImageError> {
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice2.8.png")?;
+        img.save("output/exercice3.10.png")?;
 
     }
 

@@ -136,3 +136,78 @@ let couleur_2 = Rgb([
 ```
 
 
+## Partie 3 - Passage à une palette
+
+### Question 9
+Pour calculer la distance entre deux couleurs, on peut utiliser l’espace RGB et calculer la **distance euclidienne** entre deux pixels \( C_1 \) et \( C_2 \) dont les composantes sont \( R, G, B \) :
+
+```
+D(C_1, C_2) = racine{(R_1 - R_2)^2 + (G_1 - G_2)^2 + (B_1 - B_2)^2}
+```
+
+Dans notre implémentation en Rust, cela se traduit par :
+```rust
+fn distance_couleur(c1: Rgb<u8>, c2: Rgb<u8>) -> f64 {
+    let r_diff = c1[0] as i32 - c2[0] as i32;
+    let g_diff = c1[1] as i32 - c2[1] as i32;
+    let b_diff = c1[2] as i32 - c2[2] as i32;
+    ((r_diff * r_diff + g_diff * g_diff + b_diff * b_diff) as f64).sqrt()
+}
+```
+
+### Question 10
+
+
+Pour chaque pixel de l'image :
+
+- La distance entre le pixel et chaque couleur de la palette est calculée.
+- La couleur de la palette ayant la plus petite distance est sélectionnée.
+- Le pixel est remplacé par cette couleur. 
+
+```rust
+Mode::Palette(opts) => {
+    // Palette de couleurs disponibles
+    let palette = vec![
+        BLACK, WHITE, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN,
+    ];
+
+    
+    if opts.n_couleurs == 0 {
+        eprintln!("Avertissement : la palette est vide. L'image sera renvoyée sans modification.");
+        // Aucun traitement nécessaire, l'image reste inchangée
+    } else {
+        let palette = &palette[..opts.n_couleurs.min(palette.len())];
+
+        // Remplacer chaque pixel par la couleur la plus proche de la palette
+        for (x, y, pixel) in img.enumerate_pixels_mut() {
+            let mut min_distance = f64::MAX;
+            let mut nearest_color = BLACK;
+
+            for &color in palette {
+                let distance = distance_couleur(*pixel, color);
+                if distance < min_distance {
+                    min_distance = distance;
+                    nearest_color = color;
+                }
+            }
+
+            *pixel = nearest_color;
+        }
+    }
+}
+```
+
+
+
+### Question 11
+
+Lorsque l’application est exécutée en mode `palette` avec une palette vide (par exemple, en spécifiant `--n-couleurs 0`), l’application ne modifie pas l’image. L’image d’origine est renvoyée telle quelle.
+
+Raison de ce choix :
+- Une palette vide empêche toute conversion correcte de l’image.
+- Au lieu d’interrompre le programme, nous avons choisi de renvoyer l’image d’origine pour garantir une exécution fluide.
+
+Message d’avertissement affiché :
+```txt
+Avertissement : la palette est vide. L'image sera renvoyée sans modification.
+```
