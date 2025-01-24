@@ -3,6 +3,7 @@ use image::io::Reader as ImageReader;
 use image::ImageError;
 use image::{Rgb, RgbImage, Luma, Pixel};
 use rand::Rng;
+use image::DynamicImage;
 
 
 #[derive(Debug, Clone, PartialEq, FromArgs)]
@@ -40,7 +41,16 @@ struct OptsSeuil {
     /// couleur foncée en format hexadécimal (par défaut : noir #000000)
     #[argh(option, default = "String::from(\"000000\")")]
     couleur_2: String,
+
+    /// mode de tramage
+    #[argh(option, short = 't')]
+    tramage: String, // par exemple "aleatoire", "bayer", "monochrome"
+    
+    /// ordre de la matrice de Bayer (utilisé si le tramage est "bayer")
+    #[argh(option, short = 'o', default = "2")]
+    bayer_order: u32, 
 }
+
 
 
 #[derive(Debug, Clone, PartialEq, FromArgs)]
@@ -123,11 +133,69 @@ fn tramage_bayer(img: &mut RgbImage, order: u32) {
     }
 }
 
+fn monochrome(img: &mut RgbImage, couleur_1: &str, couleur_2: &str) {
+    // Conversion des couleurs hexadécimales en RGB
+    let couleur_1 = Rgb([
+        u8::from_str_radix(&couleur_1[0..2], 16).unwrap(),
+        u8::from_str_radix(&couleur_1[2..4], 16).unwrap(),
+        u8::from_str_radix(&couleur_1[4..6], 16).unwrap(),
+    ]);
+    let couleur_2 = Rgb([
+        u8::from_str_radix(&couleur_2[0..2], 16).unwrap(),
+        u8::from_str_radix(&couleur_2[2..4], 16).unwrap(),
+        u8::from_str_radix(&couleur_2[4..6], 16).unwrap(),
+    ]);
+
+    // Parcours de tous les pixels de l'image
+    for (x, y, pixel) in img.enumerate_pixels_mut() {
+        // Calcul de la luminosité du pixel (composant de gris)
+        let luminosity = pixel.to_luma()[0]; // Calculer la luminosité du pixel en utilisant la méthode to_luma
+        if luminosity > 127 {
+            *pixel = couleur_1; // Si luminosité > 127, on utilise couleur_1
+        } else {
+            *pixel = couleur_2; // Sinon, on utilise couleur_2
+        }
+    }
+}
+
+fn help() {
+    println!("Usage: cargo run -- <input> <mode> [options]");
+    println!("Convertit une image en monochrome ou vers une palette réduite de couleurs.");
+    println!();
+    println!("Arguments:");
+    println!("  <input>     le fichier d'entrée");
+    println!("  <mode>      le mode d'opération");
+    println!();
+    println!("Modes d'opération:");
+    println!("  seuil       Rendu de l'image par seuillage monochrome");
+    println!("  palette     Rendu de l'image avec une palette contenant un nombre limité de couleurs");
+    println!();
+    println!("Options pour le mode 'seuil':");
+    println!("  --tramage <tramage>  mode de tramage (aleatoire, bayer, monochrome)");
+    println!("  Options pour le mode 'bayer':");
+    println!("    --bayer-order <ordre>  ordre de la matrice de Bayer (par défaut : 2)");
+    println!("  Options pour le mode 'monochrome':");
+    println!("    --couleur-1 <couleur>  couleur claire en format hexadécimal sans '#' (par défaut : blanc #FFFFFF)");
+    println!("    --couleur-2 <couleur>  couleur foncée en format hexadécimal sans '#' (par défaut : noir #000000)");
+    println!();
+    println!("Options pour le mode 'palette':");
+    println!("  --n-couleurs <nombre>  le nombre de couleurs à utiliser, dans la liste [NOIR, BLANC, ROUGE, VERT, BLEU, JAUNE, CYAN, MAGENTA]");
+}
+
 
 fn main() -> Result<(), ImageError> {
-    
+
+    // Vérifier si --help est passé comme argument
+    if std::env::args().any(|arg| arg == "--help") {
+        help();
+        return Ok(()); // On termine l'exécution après l'affichage de l'aide
+    }
+
     let args: DitherArgs = argh::from_env();
     let path_in = args.input;
+
+     
+
 
 
     // Partie 1
@@ -151,35 +219,21 @@ fn main() -> Result<(), ImageError> {
     match args.mode {
         Mode::Seuil(opts) => {
 
-            // Partie 2
-
-            // // Passage en monochrome
-            // let couleur_1 = Rgb([
-            //     u8::from_str_radix(&opts.couleur_1[0..2], 16).unwrap(),
-            //     u8::from_str_radix(&opts.couleur_1[2..4], 16).unwrap(),
-            //     u8::from_str_radix(&opts.couleur_1[4..6], 16).unwrap(),
-            // ]);
-            // let couleur_2 = Rgb([
-            //     u8::from_str_radix(&opts.couleur_2[0..2], 16).unwrap(),
-            //     u8::from_str_radix(&opts.couleur_2[2..4], 16).unwrap(),
-            //     u8::from_str_radix(&opts.couleur_2[4..6], 16).unwrap(),
-            // ]);
-            // for (x, y, pixel) in img.enumerate_pixels_mut() {
-            //     let luminosity = pixel.to_luma()[0]; // Calculer la luminosité
-            //     if luminosity > 127 {
-            //         *pixel = couleur_1; // Plus de 50 % de luminosité -> couleur claire
-            //     } else {
-            //         *pixel = couleur_2; // Moins de 50 % de luminosité -> couleur foncée
-            //     }
-            // }
-
-            // Partie 4
-
-            // tramage_aleatoire(&mut img);
-
-            // PArtie 5
-
-            tramage_bayer(&mut img, 2);
+        
+            match opts.tramage.as_str() {
+                "aleatoire" => {
+                    tramage_aleatoire(&mut img);
+                }
+                "bayer" => {
+                    tramage_bayer(&mut img, opts.bayer_order);
+                }
+                "monochrome" => {
+                    monochrome(&mut img, &opts.couleur_1, &opts.couleur_2);
+                }
+                _ => {
+                    eprintln!("Option de tramage inconnue : {}", opts.tramage);
+                }
+            }
 
         }
         Mode::Palette(opts) => {
@@ -219,7 +273,7 @@ fn main() -> Result<(), ImageError> {
         img.save(output)?;
     } else {
         println!("J'affiche l'image");
-        img.save("output/exercice5.15.png")?;
+        img.save("output/test.png")?;
 
     }
 

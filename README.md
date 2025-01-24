@@ -1,5 +1,9 @@
 # Rust-Maridat-Lebeaupin
 
+Membres :
+- Ethan Maridat
+- Louis Lebeaupin
+
 ## Partie 1 - La bibliothèque image
 
 ### Question 1
@@ -353,3 +357,81 @@ Nous avon créer 2 fonctions une pour générer la matrice de Bayer et une autre
 ![question15](ditherpunk/output/exercice5.15.png)
 
 
+## Partie 7 - La bibliothèque argh
+
+
+
+```rust
+match args.mode {
+        Mode::Seuil(opts) => {
+
+        
+            match opts.tramage.as_str() {
+                "aleatoire" => {
+                    tramage_aleatoire(&mut img);
+                }
+                "bayer" => {
+                    tramage_bayer(&mut img, opts.bayer_order);
+                }
+                "monochrome" => {
+                    monochrome(&mut img, &opts.couleur_1, &opts.couleur_2);
+                }
+                _ => {
+                    eprintln!("Option de tramage inconnue : {}", opts.tramage);
+                }
+            }
+
+        }
+```
+
+Exemple de commande :
+
+```
+cargo run -- ../img/iut.jpg seuil --tramage monochrome --couleur-1 AABB00
+
+cargo run -- ../img/iut.jpg seuil --tramage monochrome
+
+cargo run -- ../img/iut.jpg seuil --tramage bayer     
+
+cargo run -- ../img/iut.jpg seuil --tramage aleatoire 
+```
+
+### Question 21
+
+```
+cargo run -- --help
+```
+
+Cette commande va appelé cette fonction :
+
+```rust
+fn help() {
+    println!("Usage: cargo run -- <input> <mode> [options]");
+    println!("Convertit une image en monochrome ou vers une palette réduite de couleurs.");
+    println!();
+    println!("Arguments:");
+    println!("  <input>     le fichier d'entrée");
+    println!("  <mode>      le mode d'opération");
+    println!();
+    println!("Modes d'opération:");
+    println!("  seuil       Rendu de l'image par seuillage monochrome");
+    println!("  palette     Rendu de l'image avec une palette contenant un nombre limité de couleurs");
+    println!();
+    println!("Options pour le mode 'seuil':");
+    println!("  --tramage <tramage>  mode de tramage (aleatoire, bayer, monochrome)");
+    println!("  Options pour le mode 'bayer':");
+    println!("    --bayer-order <ordre>  ordre de la matrice de Bayer (par défaut : 2)");
+    println!("  Options pour le mode 'monochrome':");
+    println!("    --couleur-1 <couleur>  couleur claire en format hexadécimal sans '#' (par défaut : blanc #FFFFFF)");
+    println!("    --couleur-2 <couleur>  couleur foncée en format hexadécimal sans '#' (par défaut : noir #000000)");
+    println!();
+    println!("Options pour le mode 'palette':");
+    println!("  --n-couleurs <nombre>  le nombre de couleurs à utiliser, dans la liste [NOIR, BLANC, ROUGE, VERT, BLEU, JAUNE, CYAN, MAGENTA]");
+}
+```
+
+
+
+### Question 22
+
+En **Rust**, pour déterminer le type correspondant à une sélection d'options fournies par l'utilisateur, on utilise généralement une structure `enum` combinée à des valeurs ou des options associées
